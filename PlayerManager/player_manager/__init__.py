@@ -8,7 +8,6 @@ from player_manager.config import Config
 from player_manager.model import Player, creat_database, session
 from player_manager.util import get_uuid
 
-
 def on_load(server: PluginServerInterface, old):
     stored.serverInterface = server
     stored.config = server.load_config_simple("config.json",in_data_folder=True, target_class=Config)
@@ -88,7 +87,7 @@ def send_list(src:CommandSource, online:bool = False, haveTag:bool = False, page
         ctx = "list"
 
     if not players:
-        src.reply("没有数据捏")
+        src.reply("没有数据捏(_  _)。")
 
     for player in players:
         name = player.name if not haveTag else player.nick_name
@@ -96,8 +95,9 @@ def send_list(src:CommandSource, online:bool = False, haveTag:bool = False, page
             name = player.nick_name if player.nick_name is not None else player.name
         info = player.get_info()
         reply = RTextList(
-            RText(f"{name}:").set_click_event(RAction.run_command, f"{stored.config.prefix} {player.name}"),
             RText(info[0]).set_color(RColor.green),
+            RText(" @ "),
+            RText(info[1]),
             RText(" "),
             RText("[U]").set_click_event(RAction.run_command, f"/player {player.name} use")
                 .set_hover_text("使用这个BOT"),
@@ -109,31 +109,41 @@ def send_list(src:CommandSource, online:bool = False, haveTag:bool = False, page
                 .set_hover_text("持续使用这个BOT"),
             RText(" "),
             RText("[X]").set_click_event(RAction.run_command, f"/player {player.name} kill")
-                .set_hover_text("做 掉这个BOT").set_color(RColor.red)
+                .set_hover_text("§4做 掉这个BOT").set_color(RColor.red),
+            RText(f" {name}").set_click_event(RAction.run_command, f"{stored.config.prefix} {player.name}")
         )
         src.reply(reply)
 
     src.reply(RTextList(
         RText("<<").set_click_event(RAction.run_command, f"{stored.config.prefix} {ctx} {page - 1}"),
-        RText(f" {page} "),
+        RText(f" {page} ").set_color(RColor.yellow),
         RText(">>").set_click_event(RAction.run_command, f"{stored.config.prefix} {ctx} {page + 1}")
     ))
 
 def send_info(src:CommandSource, name:str):
     player = Player.get_player(name)
     if player is None:
-        src.reply("找不到此玩家")
+        src.reply("§4找不到此玩家")
         return
     rtexts = [
-        RText("----------"),
+        RText("--------------------"),
         RTextList(
-            RText(f"{name}").set_hover_text(f"UUID: {player.uuid}\n是否为正版: {player.is_onlineUUID()}"),
+            RText(f"| {name}").set_hover_text(f"UUID: {player.uuid}\n是否为正版: {player.is_onlineUUID()}").set_color(RColor.aqua),
             RText(" "),
-            RText(f"备注: {player.nick_name}")
+            RTextList(
+                RText("备注: "),
+                RText(player.nick_name).set_color(RColor.green)
+            )
         ),
-        RText(f"是否自动重新生成: {player.auto_replase}"),
-        RText("首次加入时间:{}".format(strftime("%Y-%m-%d %H:%M:%S", localtime(player.joined_time)))),
-        RText("----------")
+        RTextList(
+            RText(f"| 自动重新生成: "),
+            RText(f"{player.auto_replase}").set_color(RColor.green)
+        ),
+        RTextList(
+            RText("| 首次加入时间: "),
+            RText(strftime("%Y-%m-%d %H:%M:%S", localtime(player.joined_time))).set_color(RColor.green)
+        ),
+        RText("--------------------")
     ]
     for rtext in rtexts:
         src.reply(rtext)
@@ -145,16 +155,16 @@ def set_nick(src:CommandSource, name:str, nick_name:str):
         session.commit()
         src.reply(f"已经将{name}的备注设置为{nick_name}")
     else:
-        src.reply("设置失败，找不到此BOT")
+        src.reply("§4设置失败，找不到此BOT")
 
 def set_auto(src:CommandSource, name:str):
     player = Player.get_player(name)
     if player is not None:
         player.auto_replase = not player.auto_replase
         session.commit()
-        src.reply(f"{name}的自动重新生成已经被设置为{not player.auto_replase}")
+        src.reply(f"{name}的自动重新生成已经被设置为{player.auto_replase}")
     else:
-        src.reply("设置失败！")
+        src.reply("§4设置失败！")
     
 @new_thread("PlayerManager")
 def auto_replase(server: PluginServerInterface):

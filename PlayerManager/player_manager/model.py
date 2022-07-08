@@ -16,6 +16,12 @@ engine = create_engine('sqlite:///./PlayerManager.db?check_same_thread=False&tim
 metaData = MetaData(engine)
 session = Session(engine)
 
+dims = {
+    "minecraft:overworld": "§a主世界",
+    "minecraft:the_nether": "§4地狱",
+    "minecraft:end": "§5末地"
+}
+
 class Player(Base):
     __tablename__ = "player"
     id = Column(Integer(), primary_key=True)
@@ -63,9 +69,10 @@ class Player(Base):
         y1 = float(str(data["Rotation"][1]))
         dim = str(data["Dimension"])
 
-        location = f'[x:{int(x)},y:{int(y)},z:{int(z)},dim:"{dim}"]'
+        location = f'[x:{int(x)},y:{int(y)},z:{int(z)}]'
+        trDim = dims[dim]
         command = f"/player {self.name} spawn at {x} {y} {z} facing {x1} {y1} in {dim}"
-        return [location, command]
+        return [location, trDim, command]
     
     @staticmethod
     def get_player(name:str) -> "Player":

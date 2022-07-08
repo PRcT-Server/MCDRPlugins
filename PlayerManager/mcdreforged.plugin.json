@@ -1,6 +1,6 @@
 {
 	"id": "player_manager",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"name": "Player Manager",
 	"description": {
 		"en_us": "A MCDReforged plugin to help with managing fake players",

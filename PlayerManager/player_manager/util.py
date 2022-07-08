@@ -9,8 +9,7 @@ def get_uuid(name:str):
     try:
         data = json.loads(urlopen(f'https://api.mojang.com/users/profiles/minecraft/{name}').read().decode('utf8'))
         return str(UUID(data['id']))
-    except Exception as e:
-        e.with_traceback()
+    except Exception:
         return get_offlineUUID(name)
 
 def get_offlineUUID(name:str):
