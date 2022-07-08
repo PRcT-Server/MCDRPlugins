@@ -1,0 +1,17 @@
+{
+	"id": "player_manager",
+	"version": "1.2.0",
+	"name": "Player Manager",
+	"description": {
+		"en_us": "A MCDReforged plugin to help with managing fake players",
+		"zh_cn": "帮助你管理假人"
+	},
+	"author": [
+		"hail122"
+	],
+	"link": "https://github.com/linstar-fxt",
+	"dependencies": {
+		"mcdreforged": ">=2.0.0-beta.3",
+		"minecraft_data_api": "*"
+	}
+}
